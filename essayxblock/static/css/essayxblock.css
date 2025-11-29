@@ -1,9 +1,459 @@
-/* CSS for EssayXBlock */
+/* essayxblock/static/css/essayxblock.css */
 
-.essayxblock_block .count {
-    font-weight: bold;
+.essayxblock_block {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f7f8fc;
+  border-radius: 10px;
+  padding: 16px;
+  border: 1px solid #dde3f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  position: relative;
 }
 
-.essayxblock_block p {
-    cursor: pointer;
+/* Header */
+
+.essayxblock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.essayxblock-title h3 {
+  margin: 4px 0 0 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #123b5d; /* deep blue similar to Open edX / AbroadProcess */
+}
+
+.essayxblock-title-pill {
+  display: inline-block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #e4f2ff;
+  color: #0075b4;
+  font-weight: 600;
+}
+
+.essayxblock-mode-badge {
+  font-size: 0.78rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid #dde3f0;
+  background: #ffffff;
+  color: #4b5563;
+}
+
+.essayxblock-mode-practice .essayxblock-mode-label {
+  color: #0f766e;
+}
+
+.essayxblock-mode-exam .essayxblock-mode-label {
+  color: #b91c1c;
+}
+
+/* Cards */
+
+.essayxblock-card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border: 1px solid #e3e7f0;
+}
+
+.essayxblock-prompt {
+  border-left: 3px solid #0075b4;
+}
+
+.essayxblock-prompt p {
+  margin: 0;
+}
+
+/* Input area */
+
+.essayxblock-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.essayxblock-textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  resize: vertical;
+  min-height: 160px;
+  box-sizing: border-box;
+}
+
+.essayxblock-textarea:focus {
+  outline: none;
+  border-color: #0075b4;
+  box-shadow: 0 0 0 1px rgba(0, 117, 180, 0.3);
+}
+
+/* Meta row */
+
+.essayxblock-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
+
+.essayxblock-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
+.essayxblock-meta-item-right {
+  margin-left: auto;
+}
+
+.essayxblock-meta-label {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.essayxblock-meta-separator {
+  opacity: 0.7;
+  padding: 0 2px;
+}
+
+.essayxblock-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: #edf2ff;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.essayxblock-badge-soft {
+  background: #f9fafb;
+  color: #4b5563;
+}
+
+.essayxblock-count-exceeded {
+  color: #b91c1c !important;
+}
+
+/* Actions */
+
+.essayxblock-actions {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  gap: 8px;
+}
+
+.essayxblock-submit-button {
+  border: none;
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #0075b4, #0ea5e9);
+  color: #ffffff;
+  transition: transform 0.05s ease-out, box-shadow 0.08s ease-out, opacity 0.15s;
+  box-shadow: 0 2px 4px rgba(15, 118, 110, 0.25);
+}
+
+.essayxblock-submit-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(15, 118, 110, 0.3);
+}
+
+.essayxblock-submit-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(15, 118, 110, 0.25);
+}
+
+.essayxblock-submit-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: none;
+}
+
+.essayxblock-hint {
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+/* Messages */
+
+.essayxblock-msg-info,
+.essayxblock-msg-error {
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.essayxblock-msg-info {
+  background: #ecfeff;
+  border: 1px solid #67e8f9;
+  color: #0f766e;
+}
+
+.essayxblock-msg-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+/* Score + categories */
+
+.essayxblock-score {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  color: #111827;
+}
+
+.essayxblock-categories {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 0.82rem;
+}
+
+.essayxblock-categories th,
+.essayxblock-categories td {
+  border: 1px solid #e5e7eb;
+  padding: 4px 6px;
+}
+
+.essayxblock-categories thead {
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+/* Feedback blocks */
+
+.essayxblock-summary,
+.essayxblock-strengths,
+.essayxblock-improvements,
+.essayxblock-model-essay {
+  margin-top: 10px;
+}
+
+.essayxblock-summary h4,
+.essayxblock-strengths h4,
+.essayxblock-improvements h4,
+.essayxblock-highlighted-essay h4,
+.essayxblock-model-essay h4 {
+  margin: 0 0 4px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.essayxblock-strengths-list,
+.essayxblock-improvements-list {
+  list-style: disc;
+  padding-left: 18px;
+  margin: 4px 0;
+  font-size: 0.82rem;
+}
+
+/* Highlighted essay */
+
+.essayxblock-highlighted-essay {
+  margin-top: 10px;
+}
+
+.essayxblock-highlighted-text p {
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #f9fafb;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+/* Error span colors */
+
+.essayxblock-error-grammar {
+  background: rgba(248, 113, 113, 0.15);
+  border-bottom: 1px dashed #ef4444;
+}
+
+.essayxblock-error-vocabulary {
+  background: rgba(96, 165, 250, 0.18);
+  border-bottom: 1px dashed #2563eb;
+}
+
+.essayxblock-error-coherence {
+  background: rgba(52, 211, 153, 0.18);
+  border-bottom: 1px dashed #059669;
+}
+
+.essayxblock-error-task_response {
+  background: rgba(251, 191, 36, 0.18);
+  border-bottom: 1px dashed #d97706;
+}
+
+/* Legend */
+
+.essayxblock-legend {
+  margin-top: 6px;
+  font-size: 0.8rem;
+}
+
+.essayxblock-legend ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 4px 0 0 0;
+}
+
+.essayxblock-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.legend-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* Match span colors in legend */
+
+.legend-grammar {
+  background: rgba(248, 113, 113, 0.6);
+}
+
+.legend-vocabulary {
+  background: rgba(96, 165, 250, 0.8);
+}
+
+.legend-coherence {
+  background: rgba(52, 211, 153, 0.8);
+}
+
+.legend-task_response {
+  background: rgba(251, 191, 36, 0.9);
+}
+
+/* Model essay */
+
+.essayxblock-model-text {
+  margin: 4px 0 0 0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #f3f4f6;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+}
+
+/* Loading overlay */
+
+.essayxblock-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(249, 250, 251, 0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.essayxblock-block-loading .essayxblock-loading-overlay {
+  display: flex;
+}
+
+.essayxblock-spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 3px solid #bfdbfe;
+  border-top-color: #0075b4;
+  animation: essayxblock-spin 0.8s linear infinite;
+}
+
+.essayxblock-loading-text {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #374151;
+}
+
+@keyframes essayxblock-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Small screens */
+
+@media (max-width: 640px) {
+  .essayxblock-meta-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .essayxblock-meta-item-right {
+    margin-left: 0;
+  }
+}
+.essayxblock-toolbar {
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+}
+
+/* Toolbar: Cut / Copy / Paste under the textarea */
+.essayxblock-toolbar {
+  margin-top: 6px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr; /* three columns */
+  align-items: center;
+}
+
+/* Base button style */
+.essayxblock-btn {
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  padding: 3px 10px;
+  font-size: 0.8rem;
+  background: #f9fafb;
+  cursor: pointer;
+  min-width: 70px;
+}
+
+/* Hover state */
+.essayxblock-btn:hover {
+  background: #eef2ff;
+}
+
+/* Positioning: left / center / right */
+.essayxblock-btn-cut {
+  justify-self: start;   /* left */
+}
+
+.essayxblock-btn-copy {
+  justify-self: center;  /* center */
+}
+
+.essayxblock-btn-paste {
+  justify-self: end;     /* right */
 }

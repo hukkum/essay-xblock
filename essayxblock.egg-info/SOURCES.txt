@@ -1,0 +1,13 @@
+setup.py
+essayxblock/__init__.py
+essayxblock/essayxblock.py
+essayxblock.egg-info/PKG-INFO
+essayxblock.egg-info/SOURCES.txt
+essayxblock.egg-info/dependency_links.txt
+essayxblock.egg-info/entry_points.txt
+essayxblock.egg-info/requires.txt
+essayxblock.egg-info/top_level.txt
+essayxblock/static/README.txt
+essayxblock/static/css/essayxblock.css
+essayxblock/static/html/essayxblock.html
+essayxblock/static/js/src/essayxblock.js

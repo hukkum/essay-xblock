@@ -1,0 +1,2 @@
+[xblock.v1]
+essayxblock = essayxblock:EssayXBlock

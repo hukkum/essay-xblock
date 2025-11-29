@@ -1,2 +1,2 @@
 [xblock.v1]
-essayxblock = essayxblock:EssayXBlock
+essayxblock = essayxblock.essayxblock:EssayXBlock

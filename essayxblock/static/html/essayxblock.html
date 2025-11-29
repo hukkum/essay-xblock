@@ -1,5 +1,81 @@
+<!-- essayxblock/static/html/essayxblock.html -->
+
 <div class="essayxblock_block">
-<p>EssayXBlock: count is now
-    <span class='count'>{self.count}</span> (click me to increment).
-</p>
+  <!-- Header -->
+  <div class="essayxblock-header">
+    <div class="essayxblock-title">
+      <span class="essayxblock-title-pill">Essay Practice</span>
+      <h3>AI Essay Scoring</h3>
+    </div>
+    <div class="essayxblock-mode-badge essayxblock-mode-{self.mode}">
+      <span class="essayxblock-mode-label">
+        {self.mode.capitalize} mode
+      </span>
+    </div>
+  </div>
+
+  <!-- Prompt / instructions shown to the student -->
+  <div class="essayxblock-card essayxblock-prompt">
+    {self.prompt_html}
+  </div>
+
+  <!-- Essay input area -->
+  <div class="essayxblock-card essayxblock-input">
+    <label for="essayxblock-textarea" class="essayxblock-label">
+      Write your essay below:
+    </label>
+    <textarea id="essayxblock-textarea"
+              class="essayxblock-textarea"
+              rows="10"
+              placeholder="Type your essay here..."></textarea>
+
+    <!-- Word / char counts and attempts info -->
+    <div class="essayxblock-meta-row">
+      <div class="essayxblock-meta-item">
+        <span class="essayxblock-meta-label">Words</span>
+        <span class="essayxblock-badge">
+          <span class="essayxblock-word-current">0</span>
+          <span class="essayxblock-meta-separator">/</span>
+          <span class="essayxblock-word-max">{self.max_words}</span>
+        </span>
+      </div>
+
+      <div class="essayxblock-meta-item">
+        <span class="essayxblock-meta-label">Characters</span>
+        <span class="essayxblock-badge">
+          <span class="essayxblock-char-current">0</span>
+        </span>
+      </div>
+
+      <div class="essayxblock-meta-item essayxblock-meta-item-right">
+        <span class="essayxblock-meta-label">Attempts</span>
+        <span class="essayxblock-badge essayxblock-badge-soft">
+          <span class="essayxblock-attempts-used">{self.student_attempt_count}</span>
+          <span class="essayxblock-meta-separator">/</span>
+          <span class="essayxblock-attempts-max">{self.max_attempts}</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Submit button -->
+    <div class="essayxblock-actions">
+      <button type="button" class="essayxblock-submit-button">
+        Submit essay
+      </button>
+      <span class="essayxblock-hint">
+        Your response may take a few seconds to score.
+      </span>
+    </div>
+  </div>
+
+  <!-- Feedback / scoring area -->
+  <div class="essayxblock-card essayxblock-feedback">
+    <!-- JS will inject score, categories, color-coded text, etc. -->
+  </div>
+
+  <!-- Loading overlay -->
+  <div class="essayxblock-loading-overlay">
+    <div class="essayxblock-spinner"></div>
+    <div class="essayxblock-loading-text">Scoring your essay…</div>
+  </div>
 </div>

@@ -1,9 +1,11 @@
 Metadata-Version: 2.4
-Name: essayxblock-xblock
-Version: 0.2.0
+Name: essayxblock
+Version: 0.1.0
 Summary: AI-powered Essay XBlock with external backend scoring
+License: AGPL v3
 Requires-Dist: XBlock
 Requires-Dist: web-fragments
 Requires-Dist: requests
+Dynamic: license
 Dynamic: requires-dist
 Dynamic: summary

@@ -1,42 +1,36 @@
 """Setup for essayxblock XBlock."""
 
-
 import os
-
 from setuptools import setup
 
 
 def package_data(pkg, roots):
-    """Generic function to find package_data.
-
-    All of the files under each of the `roots` will be declared as package
-    data for package `pkg`.
-
-    """
+    """Collect static and public files as package_data."""
     data = []
     for root in roots:
         for dirname, _, files in os.walk(os.path.join(pkg, root)):
             for fname in files:
                 data.append(os.path.relpath(os.path.join(dirname, fname), pkg))
-
     return {pkg: data}
 
 
 setup(
-    name='essayxblock-xblock',
-    version='0.1',
-    description='essayxblock XBlock',   # TODO: write a better description.
-    license='UNKNOWN',          # TODO: choose a license: 'AGPL v3' and 'Apache 2.0' are popular.
-    packages=[
-        'essayxblock',
-    ],
+    name="essayxblock-xblock",   # distro name; can be anything unique
+    version="0.2.0",
+    description="AI-powered Essay XBlock with external backend scoring",
+    packages=["essayxblock"],
     install_requires=[
-        'XBlock',
+        "XBlock",
+        "web-fragments",
+        "requests",
     ],
     entry_points={
-        'xblock.v1': [
-            'essayxblock = essayxblock:EssayXBlock',
+        "xblock.v1": [
+            # IMPORTANT: follow the same style as your working ptexblock:
+            #   name = package.module:ClassName
+            "essayxblock = essayxblock.essayxblock:EssayXBlock",
         ]
     },
     package_data=package_data("essayxblock", ["static", "public"]),
+    include_package_data=True,
 )
