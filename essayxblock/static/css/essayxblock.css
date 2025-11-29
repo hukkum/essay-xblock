@@ -1,0 +1,9 @@
+/* CSS for EssayXBlock */
+
+.essayxblock_block .count {
+    font-weight: bold;
+}
+
+.essayxblock_block p {
+    cursor: pointer;
+}
