@@ -16,10 +16,12 @@ from xblock.fields import (
     Scope,
     String,
 )
+from xblockutils.studio_editable import StudioEditableXBlockMixin  # <<< NEW
 
 logger = logging.getLogger(__name__)
 
-class EssayXBlock(XBlock):
+
+class EssayXBlock(StudioEditableXBlockMixin, XBlock):
     """
     Essay XBlock that sends a student's essay to an external AI scoring backend,
     stores the results, and publishes a grade to Open edX.
@@ -30,6 +32,42 @@ class EssayXBlock(XBlock):
     The backend contract is documented in the project and expects:
       { "meta": {...}, "config": {...}, "prompt": {...}, "essay": {...} }
     """
+
+    # ----- Studio / author integration --------------------------------------
+
+    # Tell Studio that we have an author view (for preview)
+    has_author_view = True
+
+    # Fields StudioEditableXBlockMixin should expose in the side panel
+    editable_fields = (
+        "display_name",
+        "prompt_html",
+        "ai_instructions",
+        "language",
+        "min_words",
+        "max_words",
+        "max_chars",
+        "max_attempts",
+        "mode",
+        "api_base_url",
+        "show_score_in_exam",
+        "weight",
+    )
+
+    # Title shown in LMS and Studio
+    display_name = String(
+        display_name="Display name",
+        default="AI Essay Question",
+        scope=Scope.settings,
+        help="Title shown to learners and in Studio.",
+    )
+
+    @property
+    def title(self):
+        """
+        Alias for templates or tooling that expect self.title.
+        """
+        return self.display_name
 
     # ----- XBlock grading configuration --------------------------------------
 
@@ -47,9 +85,11 @@ class EssayXBlock(XBlock):
 
     # Optional student-facing prompt (can also be provided via separate HTML block)
     prompt_html = String(
+        display_name="Essay prompt (HTML)",
         default=(
             "<p><strong>Sample essay prompt:</strong> "
-            "Discuss the advantages and disadvantages of online learning compared to traditional classrooms.</p>"
+            "Discuss the advantages and disadvantages of online learning "
+            "compared to traditional classrooms.</p>"
         ),
         scope=Scope.settings,
         help="HTML instructions shown to students (essay topic).",
@@ -57,6 +97,7 @@ class EssayXBlock(XBlock):
 
     # Hidden AI instructions (not shown to students; sent to backend as 'prompt.instructions')
     ai_instructions = String(
+        display_name="AI instructions (hidden)",
         default=(
             "You are a PTE-style writing examiner. Evaluate the essay based on grammar, "
             "vocabulary, coherence & cohesion, and task response. "
@@ -67,30 +108,35 @@ class EssayXBlock(XBlock):
     )
 
     language = String(
+        display_name="Language code",
         default="en",
         scope=Scope.settings,
         help="Language code of the essay (e.g., 'en' or 'en-US').",
     )
 
     min_words = Integer(
+        display_name="Minimum words",
         default=150,
         scope=Scope.settings,
         help="Minimum recommended word count for the essay.",
     )
 
     max_words = Integer(
+        display_name="Maximum words",
         default=250,
         scope=Scope.settings,
         help="Maximum allowed word count for the essay.",
     )
 
     max_chars = Integer(
+        display_name="Maximum characters",
         default=1500,
         scope=Scope.settings,
         help="Maximum allowed character count for the essay (0 = no limit).",
     )
 
     max_attempts = Integer(
+        display_name="Max attempts per student",
         default=3,
         scope=Scope.settings,
         help="Maximum number of attempts allowed per student.",
@@ -98,20 +144,23 @@ class EssayXBlock(XBlock):
 
     # "practice" or "exam"
     mode = String(
+        display_name="Mode (practice/exam)",
         default="practice",
         scope=Scope.settings,
         help="Mode for this problem: 'practice' (feedback) or 'exam' (minimal feedback).",
     )
 
-    # Base URL of the backend API, e.g. "http://localhost:5001/api"
+    # Base URL of the backend API, e.g. "http://localhost:5001/api/essay-score"
     api_base_url = String(
-        default="http://localhost:5001/api/essay-score",
+        display_name="Scoring API URL",
+        default="https://api.abroadprocess.com/api/essay-score",
         scope=Scope.settings,
-        help="Base URL of the scoring backend, e.g. 'http://localhost:5001/api'.",
+        help="Full URL of the scoring backend, e.g. 'http://localhost:5001/api/essay-score'.",
     )
 
     # Whether to show numeric score to students in exam mode (UI will decide how to use this)
     show_score_in_exam = Boolean(
+        display_name="Show score in exam mode",
         default=True,
         scope=Scope.settings,
         help="If true, show numeric score to students in exam mode (but no detailed feedback).",
@@ -164,7 +213,6 @@ class EssayXBlock(XBlock):
         """
         html = self.resource_string("static/html/essayxblock.html")
 
-        # Pass minimal context via string formatting; JS can fetch more via an init payload.
         frag = Fragment(html.format(self=self))
         frag.add_css(self.resource_string("static/css/essayxblock.css"))
         frag.add_javascript(self.resource_string("static/js/src/essayxblock.js"))
@@ -181,7 +229,13 @@ class EssayXBlock(XBlock):
             "has_previous_result": bool(self.last_result_json),
         }
         frag.initialize_js("EssayXBlock", json_args=init_args)
-        return frag
+        return frag()
+
+    def author_view(self, context=None):
+        """
+        Studio preview view. Reuse the student_view so authors see what learners see.
+        """
+        return self.student_view(context)
 
     # ----- Backend integration & grading --------------------------------------
 
@@ -189,18 +243,16 @@ class EssayXBlock(XBlock):
         """
         Build the JSON payload expected by the scoring backend.
         """
-        # Fallbacks for IDs in different runtimes (LMS vs workbench)
         request_id = str(uuid.uuid4())
 
         try:
             xblock_id = str(self.scope_ids.usage_id)
-        except Exception:  # pragma: no cover - defensive
+        except Exception:  # defensive
             xblock_id = "essayxblock-unknown"
 
         course_id = getattr(self.runtime, "course_id", "course-v1:WORKBENCH+DEMO+2025")
         user_id = getattr(self.runtime, "anonymous_student_id", "anon-student")
 
-        # Basic counts (backend will recompute and validate as well)
         text = essay_text or ""
         char_count = len(text)
         word_count = len(text.split()) if text.strip() else 0
@@ -223,7 +275,7 @@ class EssayXBlock(XBlock):
                 },
                 "scoring": {
                     "scale_min": 0,
-                    "scale_max": 100,
+                    "scale_max": 90,
                     "normalize": True,
                     "categories": [
                         {"id": "grammar", "label": "Grammar", "weight": 0.25},
@@ -255,11 +307,8 @@ class EssayXBlock(XBlock):
     def _call_backend(self, payload: dict) -> dict:
         """
         Call the external scoring backend and return its JSON response.
-
-        Any network / parsing errors are converted to a uniform local error response.
         """
         url = (self.api_base_url or "").strip()
-
         if not url:
             logger.error("EssayXBlock: api_base_url is not configured")
             return {
@@ -282,7 +331,7 @@ class EssayXBlock(XBlock):
         )
 
         try:
-            resp = requests.post(url, json=payload, timeout=200)
+            resp = requests.post(url, json=payload, timeout=20)
         except requests.RequestException as exc:
             logger.exception(
                 "EssayXBlock: network error calling backend",
@@ -304,17 +353,6 @@ class EssayXBlock(XBlock):
                     },
                 },
             }
-
-        # Log raw HTTP result
-        logger.info(
-            "EssayXBlock: backend HTTP response",
-            extra={
-                "url": url,
-                "request_id": payload["meta"]["request_id"],
-                "status_code": resp.status_code,
-                "text_preview": resp.text[:300],
-            },
-        )
 
         try:
             data = resp.json()
@@ -342,7 +380,6 @@ class EssayXBlock(XBlock):
                 },
             }
 
-        # Normalize error if HTTP status is error
         if resp.status_code >= 400 and data.get("status") != "error":
             data.setdefault("status", "error")
             data.setdefault("status_code", resp.status_code)
@@ -359,7 +396,6 @@ class EssayXBlock(XBlock):
         )
 
         return data
-
 
     def _apply_grading(self, backend_result: dict) -> None:
         """
@@ -380,22 +416,19 @@ class EssayXBlock(XBlock):
                     normalized = (raw - float(scale_min)) / denom
                 else:
                     normalized = 0.0
-            except Exception:  # pragma: no cover - defensive
+            except Exception:
                 normalized = 0.0
 
         if normalized is None:
             normalized = 0.0
 
-        # Store the score scaled by weight
         try:
             self.student_score = float(normalized) * float(self.weight)
-        except Exception:  # pragma: no cover - defensive
+        except Exception:
             self.student_score = 0.0
 
-        # Persist full result for later student_view rendering
         self.last_result_json = json.dumps(backend_result)
 
-        # Publish grade to LMS
         self.runtime.publish(
             self,
             "grade",
@@ -407,7 +440,7 @@ class EssayXBlock(XBlock):
 
     def max_score(self) -> float:
         """
-        Required grading hook: the maximum score this problem can give (in gradebook points).
+        Maximum score this problem can give (in gradebook points).
         """
         return float(self.weight)
 
@@ -417,17 +450,9 @@ class EssayXBlock(XBlock):
     def submit_essay(self, data, suffix=""):
         """
         Handler invoked by front-end JS when the student submits an essay.
-
-        Expects 'essay_text' in the incoming JSON.
-        Returns:
-          - On success: backend response + attempt info and XBlock mode.
-          - On error: error object (do not increment attempts or grade).
         """
-        # Basic data validation from request
-        essay_text = (data or {}).get("essay_text", "")
-        essay_text = essay_text or ""  # ensure string
+        essay_text = (data or {}).get("essay_text", "") or ""
 
-        # If max attempts reached, short-circuit
         if self.student_attempt_count >= self.max_attempts:
             return {
                 "status": "error",
@@ -445,7 +470,6 @@ class EssayXBlock(XBlock):
                 "max_attempts": self.max_attempts,
             }
 
-        # Very minimal local validation to avoid calling backend on empty essays
         if not essay_text.strip():
             return {
                 "status": "error",
@@ -460,25 +484,20 @@ class EssayXBlock(XBlock):
                 "max_attempts": self.max_attempts,
             }
 
-        # Build payload and call backend
         next_attempt_index = self.student_attempt_count + 1
         payload = self._build_backend_payload(essay_text, attempt_index=next_attempt_index)
         backend_result = self._call_backend(payload)
 
-        # If backend returned an error, do not increment attempts or grade
         if backend_result.get("status") != "ok":
-            # Just pass error through, plus context
             backend_result.setdefault("mode", self.mode)
             backend_result.setdefault("attempts_used", self.student_attempt_count)
             backend_result.setdefault("max_attempts", self.max_attempts)
             return backend_result
 
-        # Successful scoring: update user state
         self.student_attempt_count = next_attempt_index
         self.student_essay_text = essay_text
         self._apply_grading(backend_result)
 
-        # Return backend result plus extra context for the JS (mode, attempts)
         backend_result["mode"] = self.mode
         backend_result["attempts_used"] = self.student_attempt_count
         backend_result["max_attempts"] = self.max_attempts
@@ -490,28 +509,22 @@ class EssayXBlock(XBlock):
 
     @staticmethod
     def workbench_scenarios():
-        """
-        Canned scenarios for display in the XBlock workbench.
-
-        Provides:
-        - A practice-mode essay block with 3 attempts
-        - An exam-mode essay block with 1 attempt
-        """
         return [
             (
                 "EssayXBlock - Practice",
                 """
                 <vertical_demo>
                     <essayxblock
+                        display_name="AI Essay (Practice)"
                         prompt_html="&lt;p&gt;&lt;strong&gt;Practice prompt:&lt;/strong&gt; Do you agree or disagree that technology has improved education?&lt;/p&gt;"
-                        ai_instructions="You are a PTE-style examiner. Score on a 0-100 scale, and return grammar, vocabulary, coherence, and task_response scores."
+                        ai_instructions="You are a PTE-style examiner. Score on a 0-90 scale, and return grammar, vocabulary, coherence, and task_response scores."
                         language="en"
                         min_words="120"
                         max_words="200"
                         max_chars="1500"
                         max_attempts="3"
                         mode="practice"
-                        api_base_url="http://localhost:5001/api/essay-score"
+                        api_base_url="https://api.abroadprocess.com/api/essay-score"
                         show_score_in_exam="true"
                         weight="1.0"
                     />
@@ -523,6 +536,7 @@ class EssayXBlock(XBlock):
                 """
                 <vertical_demo>
                     <essayxblock
+                        display_name="AI Essay (Exam)"
                         prompt_html="&lt;p&gt;&lt;strong&gt;Exam prompt:&lt;/strong&gt; Some people prefer living in cities, while others prefer rural areas. Discuss both views and give your opinion.&lt;/p&gt;"
                         ai_instructions="You are a strict exam grader. Score on a 0-100 scale and respond in the required JSON format."
                         language="en"
@@ -531,7 +545,7 @@ class EssayXBlock(XBlock):
                         max_chars="1500"
                         max_attempts="1"
                         mode="exam"
-                        api_base_url="http://localhost:5001/api/essay-score"
+                        api_base_url="https://api.abroadprocess.com/api/essay-score"
                         show_score_in_exam="true"
                         weight="1.0"
                     />
