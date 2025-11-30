@@ -229,7 +229,7 @@ class EssayXBlock(StudioEditableXBlockMixin, XBlock):
             "has_previous_result": bool(self.last_result_json),
         }
         frag.initialize_js("EssayXBlock", json_args=init_args)
-        return frag()
+        return frag
 
     def author_view(self, context=None):
         """
