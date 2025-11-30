@@ -331,7 +331,7 @@ class EssayXBlock(StudioEditableXBlockMixin, XBlock):
         )
 
         try:
-            resp = requests.post(url, json=payload, timeout=20)
+            resp = requests.post(url, json=payload, timeout=120)
         except requests.RequestException as exc:
             logger.exception(
                 "EssayXBlock: network error calling backend",
